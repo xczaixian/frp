@@ -1,10 +1,9 @@
-import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:chat_room/common/IMSDK.dart';
-import 'package:chat_room/common/RTCSDK.dart';
-import 'package:chat_room/page/RoomListPage.dart';
+import 'package:chat_room/common/im_sdk.dart';
+import 'package:chat_room/common/rtc_sdk.dart';
+import 'package:chat_room/page/splash_page.dart';
 import 'package:flutter/material.dart';
 
-import 'common/SPUtil.dart';
+import 'common/sp_util.dart';
 
 void main() {
   // WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +50,7 @@ class MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const RoomListPage(),
+      home: const SplashPage(),
     );
   }
 }

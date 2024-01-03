@@ -3,14 +3,22 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../common/RTCSDK.dart';
+import '../common/logger_util.dart';
+import '../common/rtc_sdk.dart';
 import '../components/android_foreground_service_widget.dart';
-import 'ChatRoomPage.dart';
+import 'chat_room_page.dart';
+import '../api/Api.dart' as api;
 
 class RoomListPage extends StatelessWidget {
   const RoomListPage({super.key});
 
-  void _toRoom(BuildContext context) {
+  void _toRoom(BuildContext context, int index) {
+    if (index == 1) {
+      api
+          .getVerificationCode('18390059526')
+          .then((value) => logger.d('收到验证码：$value'));
+      return;
+    }
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       Widget widget = const ChatRoomPage();
       if (!kIsWeb && Platform.isAndroid) {
@@ -33,11 +41,11 @@ class RoomListPage extends StatelessWidget {
               ),
             ),
             child: ListView.builder(
-              itemCount: 1,
+              itemCount: 2,
               itemBuilder: (context, index) {
                 return ListTile(
                   onTap: () {
-                    _toRoom(context);
+                    _toRoom(context, index);
                   },
                   title: Container(
                     padding: const EdgeInsets.all(10),

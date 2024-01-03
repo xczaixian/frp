@@ -3,12 +3,11 @@ import 'dart:math';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../page/ChatRoomPage.dart';
-import 'UuidUtil.dart';
+import 'logger_util.dart';
 
 class Config {
 // 填写项目的 App ID，可在声网控制台中生成

@@ -1,13 +1,12 @@
-import 'package:chat_room/common/IMSDK.dart';
-import 'package:chat_room/common/RTCSDK.dart';
+import 'package:chat_room/common/im_sdk.dart';
+import 'package:chat_room/common/rtc_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:logger/logger.dart';
 
 import 'dart:async';
 
-final logger = Logger();
+import '../common/logger_util.dart';
 
 class ChatRoomPage extends StatefulWidget {
   const ChatRoomPage({super.key});

@@ -1,12 +1,10 @@
-import 'package:chat_room/common/SPUtil.dart';
-import 'package:flutter/material.dart';
+import 'package:chat_room/common/sp_util.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:im_flutter_sdk/im_flutter_sdk.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
-import '../page/ChatRoomPage.dart';
-import 'UuidUtil.dart';
+import 'logger_util.dart';
+import 'uuid_util.dart';
 
 class IMConfig {
   static String AppKey = '1129231215169095#chat-room';
