@@ -1,10 +1,10 @@
 import 'package:chat_room/common/sp_util.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../api/api.dart' as Api;
 import '../page/login_page.dart';
 import '../page/room_list_page.dart';
-import 'package:toast/toast.dart';
 
 String _token = '';
 
@@ -30,12 +30,12 @@ Future<void> checkLogin(BuildContext context) async {
   if (token == null || userName == null) {
     toLogin(context);
   } else {
-    Api.loginWithToken(userName!, getToken).then((value) {
+    Api.loginWithToken(userName, token).then((value) {
       if (value.isNotEmpty) {
-        Toast.show(value, duration: Toast.lengthLong, gravity: Toast.bottom);
+        Fluttertoast.showToast(msg: value);
         toLogin(context);
       } else {
-        Navigator.push(context,
+        Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const RoomListPage()));
       }
     });
@@ -43,7 +43,7 @@ Future<void> checkLogin(BuildContext context) async {
 }
 
 void toLogin(BuildContext context) {
-  Navigator.push(
+  Navigator.pushReplacement(
     context,
     MaterialPageRoute(builder: (context) => const LoginPage()),
   );

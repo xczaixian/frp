@@ -40,7 +40,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text('这是引导页,$_second秒后跳转')),
+      body: Center(child: Text(_second > 0 ? '这是引导页,$_second秒后跳转' : '正在登录...')),
       backgroundColor: Colors.white,
     );
   }

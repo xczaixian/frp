@@ -1,7 +1,8 @@
+import 'package:chat_room/page/room_list_page.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../api/api.dart' as api;
 import '../common/logger_util.dart';
-import 'package:toast/toast.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -20,29 +21,28 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void register() {
     if (_verificationCode.isEmpty) {
-      Toast.show('请输入验证码', duration: Toast.lengthLong, gravity: Toast.bottom);
+      Fluttertoast.showToast(msg: '请输入验证码');
+      return;
     }
-    api.loginWithUserName(_userName, _pwd).then((value) => {
-          if (value.isEmpty)
-            {
-              //登录成功
-              logger.d('login success')
-            }
-          else
-            {
-              //登录失败
-              logger.d('login failed')
-            }
-        });
+    api.register(_userName, _pwd, _phone, _verificationCode).then((value) {
+      if (value.isEmpty) {
+        Fluttertoast.showToast(msg: '注册成功，已登录');
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const RoomListPage()));
+      } else {
+        Fluttertoast.showToast(msg: '注册失败，$value');
+      }
+    });
   }
 
   void getCode() async {
     if (_phone.isEmpty) {
-      Toast.show('请输入手机号', duration: Toast.lengthLong, gravity: Toast.bottom);
+      Fluttertoast.showToast(msg: '请输入手机号');
       return;
     }
     String code = await api.getVerificationCode(_phone);
     codeController.text = code;
+    _verificationCode = code;
   }
 
   @override
@@ -63,21 +63,31 @@ class _RegisterPageState extends State<RegisterPage> {
             children: [
               TextField(
                 decoration: const InputDecoration(
-                    hintText: '请输入账号', filled: true, fillColor: Colors.white),
+                    labelText: '用户名',
+                    hintText: '请输入账号',
+                    filled: true,
+                    fillColor: Colors.white),
                 onChanged: (value) => {_userName = value},
               ),
               TextField(
                   decoration: const InputDecoration(
-                      hintText: '请输入密码', filled: true, fillColor: Colors.white),
+                      labelText: '密码',
+                      hintText: '请输入密码',
+                      filled: true,
+                      fillColor: Colors.white),
                   onChanged: (value) => {_pwd = value}),
               TextField(
                 decoration: const InputDecoration(
-                    hintText: '请输入手机号', filled: true, fillColor: Colors.white),
+                    labelText: '手机号',
+                    hintText: '请输入手机号',
+                    filled: true,
+                    fillColor: Colors.white),
                 onChanged: (value) => {_phone = value},
               ),
               TextField(
                   controller: codeController,
                   decoration: const InputDecoration(
+                      labelText: '验证码',
                       hintText: '请输入验证码',
                       filled: true,
                       fillColor: Colors.white),

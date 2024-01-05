@@ -5,6 +5,7 @@ import 'package:chat_room/common/login_manager.dart';
 
 import '../common/http_util.dart';
 
+// 错误的时候，返回的是通用的数据结构
 String getErrorMsg(Map<String, dynamic> json) {
   BaseBean baseBean = BaseBean.fromJson(json);
   if (baseBean.success) {
@@ -15,11 +16,32 @@ String getErrorMsg(Map<String, dynamic> json) {
 }
 
 // 注册接口
-Future<bool> register() {
-  return Future(() => true);
+Future<String> register(
+    String username, String password, String phone, String code) async {
+  final result = await post(
+      'sso/register',
+      {
+        "username": username,
+        "password": password,
+        "telephone": phone,
+        "authCode": code,
+      },
+      needToken: false);
+  String msg = getErrorMsg(result);
+  if (msg.isNotEmpty) {
+    return Future(() => msg);
+  }
+  LoginBeanWrap loginBeanWrap = LoginBeanWrap.fromJson(result);
+  if (loginBeanWrap.success) {
+    setToken(loginBeanWrap.data.token, isSaveToken: true);
+    setUsername(username);
+    return Future(() => '');
+  } else {
+    return Future(() => loginBeanWrap.message);
+  }
 }
 
-// 用户名登录,return msg
+// 用户名登录,return error msg
 Future<String> loginWithUserName(String username, String pwd) async {
   final result = await post(
       'sso/login', {"username": username, "password": pwd},
@@ -43,6 +65,10 @@ Future<String> loginWithToken(String username, String token) async {
   final result = await post(
       'sso/loginByToken', {"username": username, "loginToken": token},
       needToken: false);
+  String msg = getErrorMsg(result);
+  if (msg.isNotEmpty) {
+    return Future(() => msg);
+  }
   LoginBeanWrap loginBeanWrap = LoginBeanWrap.fromJson(result);
   if (loginBeanWrap.success) {
     setToken(loginBeanWrap.data.token, isSaveToken: true);

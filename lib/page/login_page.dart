@@ -1,4 +1,7 @@
+import 'package:chat_room/page/register_page.dart';
+import 'package:chat_room/page/room_list_page.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../api/api.dart' as api;
 import '../common/logger_util.dart';
 
@@ -14,18 +17,24 @@ class _LoginPageState extends State<LoginPage> {
   String _pwd = '';
 
   void login() {
-    api.loginWithUserName(_userName, _pwd).then((value) => {
-          if (value.isEmpty)
-            {
-              //登录成功
-              logger.d('login success')
-            }
-          else
-            {
-              //登录失败
-              logger.d('login failed')
-            }
-        });
+    api.loginWithUserName(_userName, _pwd).then((value) {
+      if (value.isEmpty) {
+        Fluttertoast.showToast(msg: '登录成功');
+        //登录成功
+        logger.d('login success');
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const RoomListPage()));
+      } else {
+        Fluttertoast.showToast(msg: '登录失败');
+        //登录失败
+        logger.d('login failed,$value');
+      }
+    });
+  }
+
+  void toRegister() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const RegisterPage()));
   }
 
   @override
@@ -44,6 +53,16 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: TextButton(
+                  onPressed: () => {toRegister()},
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white)),
+                  child: const Text('没有账号，点击注册'),
+                ),
+              ),
               TextField(
                 decoration: const InputDecoration(
                     hintText: '请输入账号', filled: true, fillColor: Colors.white),
