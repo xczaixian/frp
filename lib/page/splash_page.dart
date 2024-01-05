@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:chat_room/page/room_list_page.dart';
 import 'package:flutter/material.dart';
+import '../common/sp_util.dart';
 
 import '../common/login_manager.dart';
 
@@ -19,6 +20,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _second--;

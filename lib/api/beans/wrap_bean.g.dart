@@ -6,6 +6,20 @@ part of 'wrap_bean.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+BaseBean _$BaseBeanFromJson(Map<String, dynamic> json) => BaseBean(
+      json['code'] as int,
+      json['status'] as int,
+      json['message'] as String,
+      json['success'] as bool,
+    );
+
+Map<String, dynamic> _$BaseBeanToJson(BaseBean instance) => <String, dynamic>{
+      'code': instance.code,
+      'status': instance.status,
+      'message': instance.message,
+      'success': instance.success,
+    };
+
 AuthCodeWrap _$AuthCodeWrapFromJson(Map<String, dynamic> json) => AuthCodeWrap(
       json['code'] as int,
       json['status'] as int,

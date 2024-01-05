@@ -2,6 +2,7 @@ import 'package:chat_room/common/im_sdk.dart';
 import 'package:chat_room/common/rtc_sdk.dart';
 import 'package:chat_room/page/splash_page.dart';
 import 'package:flutter/material.dart';
+import 'package:toast/toast.dart';
 
 import 'common/sp_util.dart';
 
@@ -22,6 +23,7 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   initApp() {
     SPUtil.instance.initSP();
+    ToastContext().init(context);
     IMSDK.instance.onAppInit();
     RTCSDK.instance.initRtcEngine();
   }

@@ -6,6 +6,20 @@ import 'package:json_annotation/json_annotation.dart';
 part 'wrap_bean.g.dart';
 
 @JsonSerializable()
+class BaseBean {
+  BaseBean(this.code, this.status, this.message, this.success);
+
+  int code;
+  int status;
+  String message;
+  bool success;
+
+  factory BaseBean.fromJson(Map<String, dynamic> json) =>
+      _$BaseBeanFromJson(json);
+  Map<String, dynamic> toJson() => _$BaseBeanToJson(this);
+}
+
+@JsonSerializable()
 class AuthCodeWrap {
   AuthCodeWrap(this.code, this.status, this.message, this.data, this.success);
 

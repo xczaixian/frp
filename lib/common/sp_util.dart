@@ -6,6 +6,9 @@ class SPKey {
   static String username = "username";
   static String password = "password";
   static String hasRegister = "hasRegister";
+
+  static String loginUserName = 'loginUserName';
+  static String token = 'token';
 }
 
 class SPUtil {
