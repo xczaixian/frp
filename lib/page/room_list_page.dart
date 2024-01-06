@@ -24,7 +24,9 @@ class RoomListCubit extends Cubit<List<RoomBean>> {
   RoomListCubit(super.initialState);
 
   void changeList(List<RoomBean> list) {
-    emit(list);
+    List<RoomBean> result = List.empty(growable: true);
+    result.addAll(list);
+    emit(result);
   }
 
   void addRoom(RoomBean chatRecord) {
@@ -41,12 +43,13 @@ class RoomListCubit extends Cubit<List<RoomBean>> {
 }
 
 class RoomListPageState extends State<RoomListPage> {
-  final RoomListCubit _roomListCubit = RoomListCubit(List.empty());
+  final RoomListCubit _roomListCubit =
+      RoomListCubit(List.empty(growable: true));
 
   @override
   void initState() {
     super.initState();
-    updateRoomList(true);
+    updateRoomList(false);
   }
 
   void updateRoomList(bool addAlways) {
@@ -62,7 +65,7 @@ class RoomListPageState extends State<RoomListPage> {
 
   void _toRoom(BuildContext context, RoomBean roomBean) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      Widget widget = const ChatRoomPage();
+      Widget widget = ChatRoomPage(roomBean.channelName);
       if (!kIsWeb && Platform.isAndroid) {
         widget = AndroidForegroundServiceWidget(child: widget);
       }
@@ -75,6 +78,7 @@ class RoomListPageState extends State<RoomListPage> {
       if (value.isNotEmpty) {
         Fluttertoast.showToast(msg: '创建房间失败:$value');
       } else {
+        Fluttertoast.showToast(msg: '创建房间成功');
         updateRoomList(true);
       }
     });

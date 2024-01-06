@@ -81,3 +81,30 @@ class ListRoomBean {
 
   Map<String, dynamic> toJson() => _$ListRoomBeanToJson(this);
 }
+
+@JsonSerializable()
+class AgoraTokenWarpBean {
+  int code;
+  int status;
+  String message;
+  bool success;
+  AgoraTokenBean data;
+
+  AgoraTokenWarpBean(
+      this.code, this.status, this.message, this.success, this.data);
+  factory AgoraTokenWarpBean.fromJson(Map<String, dynamic> json) =>
+      _$AgoraTokenWarpBeanFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AgoraTokenWarpBeanToJson(this);
+}
+
+@JsonSerializable()
+class AgoraTokenBean {
+  String token;
+
+  AgoraTokenBean(this.token);
+  factory AgoraTokenBean.fromJson(Map<String, dynamic> json) =>
+      _$AgoraTokenBeanFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AgoraTokenBeanToJson(this);
+}

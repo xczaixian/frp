@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:chat_room/api/api.dart';
+import 'package:chat_room/common/login_manager.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -80,15 +82,15 @@ class RTCSDK {
     logger.d('改变音频上传状态:$enable');
   }
 
-  joinChannel() async {
+  joinChannel(String channelName) async {
     if (defaultTargetPlatform == TargetPlatform.android) {
       await Permission.microphone.request();
     }
-
+    final String token = await getAgoraToken();
     await _engine.joinChannel(
-        token: Config.token,
-        channelId: Config.channelName,
-        uid: Config.uid,
+        token: token,
+        channelId: channelName,
+        uid: getUid(),
         options: ChannelMediaOptions(
           channelProfile: _channelProfileType,
           clientRoleType: ClientRoleType.clientRoleBroadcaster,

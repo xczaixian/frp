@@ -84,3 +84,31 @@ Map<String, dynamic> _$ListRoomBeanToJson(ListRoomBean instance) =>
       'channels': instance.channels,
       'total_size': instance.total_size,
     };
+
+AgoraTokenWarpBean _$AgoraTokenWarpBeanFromJson(Map<String, dynamic> json) =>
+    AgoraTokenWarpBean(
+      json['code'] as int,
+      json['status'] as int,
+      json['message'] as String,
+      json['success'] as bool,
+      AgoraTokenBean.fromJson(json['data'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$AgoraTokenWarpBeanToJson(AgoraTokenWarpBean instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'status': instance.status,
+      'message': instance.message,
+      'success': instance.success,
+      'data': instance.data,
+    };
+
+AgoraTokenBean _$AgoraTokenBeanFromJson(Map<String, dynamic> json) =>
+    AgoraTokenBean(
+      json['token'] as String,
+    );
+
+Map<String, dynamic> _$AgoraTokenBeanToJson(AgoraTokenBean instance) =>
+    <String, dynamic>{
+      'token': instance.token,
+    };

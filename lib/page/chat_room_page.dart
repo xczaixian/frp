@@ -9,13 +9,20 @@ import 'dart:async';
 import '../common/logger_util.dart';
 
 class ChatRoomPage extends StatefulWidget {
-  const ChatRoomPage({super.key});
+  String _channelName;
+
+  ChatRoomPage(this._channelName, {super.key});
 
   @override
-  State<StatefulWidget> createState() => _ChatRoomState();
+  State<StatefulWidget> createState() =>
+      _ChatRoomState(channelName: _channelName);
 }
 
 class _ChatRoomState extends State<ChatRoomPage> {
+  String channelName;
+
+  _ChatRoomState({required this.channelName});
+
   // 默认状态打开
   MicCubit micCubit = MicCubit(true);
 
@@ -31,7 +38,7 @@ class _ChatRoomState extends State<ChatRoomPage> {
         'assets/images/default_avatar.jpg',
         false));
 
-    RTCSDK.instance.joinChannel();
+    RTCSDK.instance.joinChannel(channelName);
   }
 
   @override

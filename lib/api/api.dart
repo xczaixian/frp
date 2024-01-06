@@ -2,8 +2,10 @@ import 'dart:ffi';
 
 import 'package:chat_room/api/beans/room_bean.dart';
 import 'package:chat_room/api/beans/wrap_bean.dart';
+import 'package:chat_room/common/logger_util.dart';
 import 'package:chat_room/common/login_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:logger/logger.dart';
 
 import '../common/http_util.dart';
 
@@ -56,6 +58,7 @@ Future<String> loginWithUserName(String username, String pwd) async {
   if (loginBeanWrap.success) {
     setToken(loginBeanWrap.data.token, isSaveToken: true);
     setUsername(username);
+    setUid(loginBeanWrap.data.id);
     return '';
   } else {
     return loginBeanWrap.message;
@@ -74,6 +77,7 @@ Future<String> loginWithToken(String username, String token) async {
   LoginBeanWrap loginBeanWrap = LoginBeanWrap.fromJson(result);
   if (loginBeanWrap.success) {
     setToken(loginBeanWrap.data.token, isSaveToken: true);
+    setUid(loginBeanWrap.data.id);
     return '';
   } else {
     return loginBeanWrap.message;
@@ -93,16 +97,11 @@ Future<String> getAgoraToken() async {
   final result = await post('/agoratoken/generate/token', {}, needToken: true);
   String msg = getErrorMsg(result);
   if (msg.isNotEmpty) {
-    return msg;
-  }
-  //todo 修改模型
-  LoginBeanWrap loginBeanWrap = LoginBeanWrap.fromJson(result);
-  if (loginBeanWrap.success) {
-    setToken(loginBeanWrap.data.token, isSaveToken: true);
+    logger.d('请求token失败，msg=$msg');
     return '';
-  } else {
-    return loginBeanWrap.message;
   }
+  AgoraTokenWarpBean agoraTokenWarpBean = AgoraTokenWarpBean.fromJson(result);
+  return agoraTokenWarpBean.data.token;
 }
 
 const default_channel_name = 'test';

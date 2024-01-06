@@ -7,6 +7,7 @@ import '../page/login_page.dart';
 import '../page/room_list_page.dart';
 
 String _token = '';
+int _uid = 0;
 
 String get getToken => _token;
 void setToken(String token, {bool isSaveToken = false}) {
@@ -14,6 +15,14 @@ void setToken(String token, {bool isSaveToken = false}) {
   if (isSaveToken) {
     saveToken(token);
   }
+}
+
+void setUid(int id) {
+  _uid = id;
+}
+
+int getUid() {
+  return _uid;
 }
 
 void saveToken(String token) {
