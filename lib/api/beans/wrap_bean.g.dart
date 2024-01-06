@@ -54,3 +54,33 @@ Map<String, dynamic> _$LoginBeanWrapToJson(LoginBeanWrap instance) =>
       'success': instance.success,
       'data': instance.data,
     };
+
+RoomBeanWrap _$RoomBeanWrapFromJson(Map<String, dynamic> json) => RoomBeanWrap(
+      json['code'] as int,
+      json['status'] as int,
+      json['message'] as String,
+      json['success'] as bool,
+      ListRoomBean.fromJson(json['data'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$RoomBeanWrapToJson(RoomBeanWrap instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'status': instance.status,
+      'message': instance.message,
+      'success': instance.success,
+      'data': instance.data,
+    };
+
+ListRoomBean _$ListRoomBeanFromJson(Map<String, dynamic> json) => ListRoomBean(
+      (json['channels'] as List<dynamic>)
+          .map((e) => RoomBean.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      json['total_size'] as int,
+    );
+
+Map<String, dynamic> _$ListRoomBeanToJson(ListRoomBean instance) =>
+    <String, dynamic>{
+      'channels': instance.channels,
+      'total_size': instance.total_size,
+    };

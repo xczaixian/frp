@@ -1,62 +1,146 @@
 import 'dart:io';
 
+import 'package:chat_room/api/beans/room_bean.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
+import '../api/api.dart';
 import '../common/logger_util.dart';
 import '../common/rtc_sdk.dart';
 import '../components/android_foreground_service_widget.dart';
 import 'chat_room_page.dart';
 import '../api/Api.dart' as api;
 
-class RoomListPage extends StatelessWidget {
+class RoomListPage extends StatefulWidget {
   const RoomListPage({super.key});
 
-  void _toRoom(BuildContext context, int index) {
-    if (index == 1) {
-      api
-          .getVerificationCode('18390059526')
-          .then((value) => logger.d('收到验证码：$value'));
-      return;
-    }
+  @override
+  State<StatefulWidget> createState() => RoomListPageState();
+}
+
+class RoomListCubit extends Cubit<List<RoomBean>> {
+  RoomListCubit(super.initialState);
+
+  void changeList(List<RoomBean> list) {
+    emit(list);
+  }
+
+  void addRoom(RoomBean chatRecord) {
+    // 将新数据添加到当前列表中
+    List<RoomBean> currentList = state;
+    currentList.add(chatRecord);
+    emit(List<RoomBean>.from(currentList));
+  }
+
+  void clearRecord() {
+    state.clear();
+    emit(List<RoomBean>.from(state));
+  }
+}
+
+class RoomListPageState extends State<RoomListPage> {
+  final RoomListCubit _roomListCubit = RoomListCubit(List.empty());
+
+  @override
+  void initState() {
+    super.initState();
+    updateRoomList(true);
+  }
+
+  void updateRoomList(bool addAlways) {
+    api.queryChannelList().then((value) {
+      if (value.isNotEmpty) {
+        _roomListCubit.changeList(value);
+      } else if (addAlways) {
+        _roomListCubit.addRoom(RoomBean(default_channel_name, default_image,
+            default_roompwd, default_country, default_roomType));
+      }
+    });
+  }
+
+  void _toRoom(BuildContext context, RoomBean roomBean) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       Widget widget = const ChatRoomPage();
       if (!kIsWeb && Platform.isAndroid) {
         widget = AndroidForegroundServiceWidget(child: widget);
       }
-
       return widget;
     }));
+  }
+
+  void createRoom() {
+    api.createRoom(default_channel_name, default_image).then((value) {
+      if (value.isNotEmpty) {
+        Fluttertoast.showToast(msg: '创建房间失败:$value');
+      } else {
+        updateRoomList(true);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(
-            padding: const EdgeInsets.only(top: 30),
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/bg2.jpg'),
-                fit: BoxFit.cover,
-              ),
+        body: BlocProvider(
+      create: (context) => _roomListCubit,
+      child: Container(
+          padding: const EdgeInsets.only(top: 30),
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bg2.jpg'),
+              fit: BoxFit.cover,
             ),
-            child: ListView.builder(
-              itemCount: 2,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  onTap: () {
-                    _toRoom(context, index);
+          ),
+          child: Column(
+            children: [
+              TextButton(
+                  onPressed: () => {createRoom()},
+                  child: const Text('创建房间'),
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white))),
+              Expanded(
+                child: BlocBuilder<RoomListCubit, List<RoomBean>>(
+                  builder: (context, state) {
+                    return state.isEmpty
+                        ? Container(
+                            decoration:
+                                const BoxDecoration(color: Colors.white),
+                            child: const Center(
+                              child: Text(
+                                '当前没有房间..',
+                                style:
+                                    TextStyle(fontSize: 18, color: Colors.blue),
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: state.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                onTap: () {
+                                  _toRoom(context, state[index]);
+                                },
+                                title: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration:
+                                      const BoxDecoration(color: Colors.white),
+                                  child: Text(
+                                    state[index].channelName,
+                                    style: const TextStyle(
+                                        fontSize: 24, color: Colors.green),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                   },
-                  title: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(color: Colors.white),
-                    child: const Text(
-                      Config.channelName,
-                      style: TextStyle(fontSize: 24, color: Colors.green),
-                    ),
-                  ),
-                );
-              },
-            )));
+                ),
+              ),
+            ],
+          )),
+    ));
   }
 }

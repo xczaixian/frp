@@ -2,6 +2,7 @@
 
 import 'package:chat_room/api/beans/auth_code.dart';
 import 'package:chat_room/api/beans/login_bean.dart';
+import 'package:chat_room/api/beans/room_bean.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'wrap_bean.g.dart';
 
@@ -50,4 +51,33 @@ class LoginBeanWrap {
       _$LoginBeanWrapFromJson(json);
 
   Map<String, dynamic> toJson() => _$LoginBeanWrapToJson(this);
+}
+
+@JsonSerializable()
+class RoomBeanWrap {
+  int code;
+  int status;
+  String message;
+  bool success;
+  ListRoomBean data;
+
+  RoomBeanWrap(this.code, this.status, this.message, this.success, this.data);
+
+  factory RoomBeanWrap.fromJson(Map<String, dynamic> json) =>
+      _$RoomBeanWrapFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RoomBeanWrapToJson(this);
+}
+
+@JsonSerializable()
+class ListRoomBean {
+  ListRoomBean(this.channels, this.total_size);
+
+  List<RoomBean> channels;
+  int total_size;
+
+  factory ListRoomBean.fromJson(Map<String, dynamic> json) =>
+      _$ListRoomBeanFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ListRoomBeanToJson(this);
 }
