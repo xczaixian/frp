@@ -624,24 +624,24 @@ class BottomToolBar extends StatelessWidget {
                 ),
               ),
               Image.asset(
-                'assets/images/gift.png',
+                'assets/images/ic_more.png',
                 width: 30,
                 height: 30,
               ),
-              SvgPicture.asset(
-                'assets/svgs/options.svg',
-                width: 22,
-                height: 22,
-              ),
-              SvgPicture.asset(
+               SvgPicture.asset(
                 'assets/svgs/handup.svg',
                 width: 22,
                 height: 22,
               ),
-              SvgPicture.asset(
-                'assets/svgs/menu.svg',
-                width: 22,
-                height: 22,
+               Image.asset(
+                'assets/images/ic_gift.png',
+                width: 30,
+                height: 30,
+              ),
+               Image.asset(
+                'assets/images/ic_menu.png',
+                width: 30,
+                height: 30,
               ),
             ],
           ),
