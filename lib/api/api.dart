@@ -93,8 +93,11 @@ Future<String> getVerificationCode(String phone) async {
 }
 
 // 获取声网token
-Future<String> getAgoraToken() async {
-  final result = await post('/agoratoken/generate/token', {}, needToken: true);
+Future<String> getAgoraToken(String channelName, int uid,
+    {int role = 0}) async {
+  final result = await post('/agoratoken/generate/token',
+      {"channelName": channelName, "uid": uid, "role": role},
+      needToken: true);
   String msg = getErrorMsg(result);
   if (msg.isNotEmpty) {
     logger.d('请求token失败，msg=$msg');
@@ -111,26 +114,24 @@ const default_roomType = 0;
 const default_roompwd = '';
 
 // 创建房间
-Future<String> createRoom(String channelName, String imageUrl,
-    {int roomType = default_roomType,
-    String country = default_country,
-    String roomPwd = default_roompwd}) async {
+Future<RoomBean?> createRoom(RoomBean roomBean) async {
   final result = await post(
       '/agora/create/channel',
       {
-        "channelName": channelName,
-        "imageUrl": imageUrl,
-        "roomType": roomType,
-        "country": country,
-        "roomPwd": roomPwd,
+        "channelName": roomBean.channelName,
+        "imageUrl": roomBean.imageUrl,
+        "roomType": roomBean.roomType,
+        "country": roomBean.country,
+        "roomPwd": roomBean.roomPwd,
       },
       isPostJson: true,
       needToken: true);
   String msg = getErrorMsg(result);
   if (msg.isNotEmpty) {
-    return msg;
+    Fluttertoast.showToast(msg: '创建房间失败,$msg');
+    return null;
   }
-  return '';
+  return roomBean;
 }
 
 // 查询通道列表

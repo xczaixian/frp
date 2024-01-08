@@ -13,7 +13,8 @@ import 'logger_util.dart';
 
 class Config {
 // 填写项目的 App ID，可在声网控制台中生成
-  static const String appId = "41cb6429b9da4589a083282a1f339714";
+  // static const String appId = "41cb6429b9da4589a083282a1f339714";
+  static const String appId = "e4e5265a2566410ab86b0290c72aef00";
 // 填写声网控制台中生成的临时 Token
   static const String token =
       "007eJxTYKibp/j9bYz2t8PikssVd23cw2PHovkv61qGUIqy2yzd+1UKDCaGyUlmJkaWSZYpiSamFpaJBhbGRhZGiYZpxsaW5oYmid21qQ2BjAx8s7xZGRkgEMxnKEktLolPzkgsiS/Kz89lYAAAGI4hOA==";
@@ -86,7 +87,7 @@ class RTCSDK {
     if (defaultTargetPlatform == TargetPlatform.android) {
       await Permission.microphone.request();
     }
-    final String token = await getAgoraToken();
+    final String token = await getAgoraToken(channelName, getUid());
     await _engine.joinChannel(
         token: token,
         channelId: channelName,

@@ -74,12 +74,14 @@ class RoomListPageState extends State<RoomListPage> {
   }
 
   void createRoom() {
-    api.createRoom(default_channel_name, default_image).then((value) {
-      if (value.isNotEmpty) {
-        Fluttertoast.showToast(msg: '创建房间失败:$value');
+    RoomBean roomBean = RoomBean(default_channel_name, default_image,
+        default_roompwd, default_country, default_roomType);
+    api.createRoom(roomBean).then((value) {
+      if (value == null) {
+        logger.d('创建房间失败');
       } else {
         Fluttertoast.showToast(msg: '创建房间成功');
-        updateRoomList(true);
+        _toRoom(context, roomBean);
       }
     });
   }
