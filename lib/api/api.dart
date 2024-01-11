@@ -39,6 +39,7 @@ Future<String> register(
   if (loginBeanWrap.success) {
     setToken(loginBeanWrap.data.token, isSaveToken: true);
     setUsername(username);
+    setUid(loginBeanWrap.data.id);
     return '';
   } else {
     return loginBeanWrap.message;
@@ -107,7 +108,7 @@ Future<String> getAgoraToken(String channelName, int uid,
   return agoraTokenWarpBean.data.token;
 }
 
-const default_channel_name = 'test';
+const default_channel_name = 'test01101';
 const default_image = 'https://tianyahead.png';
 const default_country = 'cn';
 const default_roomType = 0;

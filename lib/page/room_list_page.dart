@@ -73,9 +73,73 @@ class RoomListPageState extends State<RoomListPage> {
     }));
   }
 
-  void createRoom() {
-    RoomBean roomBean = RoomBean(default_channel_name, default_image,
-        default_roompwd, default_country, default_roomType);
+// 创建一个全局的 GlobalKey<FormState>
+  final _formKey = GlobalKey<FormState>();
+  final _textEditingController = TextEditingController();
+
+// 创建一个方法来显示弹窗
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // 使用一个 ListView 包装一个 Column，以支持多个输入字段
+        return AlertDialog(
+          title: const Text('创建房间表单'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: ListBody(
+                children: <Widget>[
+                  // 添加一个输入框
+                  TextFormField(
+                    controller: _textEditingController,
+                    decoration: const InputDecoration(
+                      labelText: '房间名',
+                    ),
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return '请输入内容';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            // 添加一个取消按钮
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            // 添加一个确定按钮
+            TextButton(
+              child: const Text('确定'),
+              onPressed: () {
+                // 验证输入框的内容
+                if (_formKey.currentState!.validate()) {
+                  String value = _textEditingController.text;
+                  _createRoom(value);
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _createRoomAction() {
+    _showDialog(context);
+  }
+
+  void _createRoom(String channelName) {
+    RoomBean roomBean = RoomBean(channelName, default_image, default_roompwd,
+        default_country, default_roomType);
     api.createRoom(roomBean).then((value) {
       if (value == null) {
         logger.d('创建房间失败');
@@ -102,11 +166,11 @@ class RoomListPageState extends State<RoomListPage> {
           child: Column(
             children: [
               TextButton(
-                  onPressed: () => {createRoom()},
-                  child: const Text('创建房间'),
+                  onPressed: () => {_createRoomAction()},
                   style: ButtonStyle(
                       backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white))),
+                          MaterialStateProperty.all<Color>(Colors.white)),
+                  child: const Text('创建房间')),
               Expanded(
                 child: BlocBuilder<RoomListCubit, List<RoomBean>>(
                   builder: (context, state) {

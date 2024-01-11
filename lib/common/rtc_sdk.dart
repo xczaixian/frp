@@ -16,12 +16,8 @@ class Config {
   // static const String appId = "41cb6429b9da4589a083282a1f339714";
   static const String appId = "e4e5265a2566410ab86b0290c72aef00";
 // 填写声网控制台中生成的临时 Token
-  static const String token =
-      "007eJxTYKibp/j9bYz2t8PikssVd23cw2PHovkv61qGUIqy2yzd+1UKDCaGyUlmJkaWSZYpiSamFpaJBhbGRhZGiYZpxsaW5oYmid21qQ2BjAx8s7xZGRkgEMxnKEktLolPzkgsiS/Kz89lYAAAGI4hOA==";
-// 填写频道名
-  static const String channelName = "test_chat_room";
-
-  static int uid = Random().nextInt(200);
+  // static const String token =
+  //     "007eJxTYKibp/j9bYz2t8PikssVd23cw2PHovkv61qGUIqy2yzd+1UKDCaGyUlmJkaWSZYpiSamFpaJBhbGRhZGiYZpxsaW5oYmid21qQ2BjAx8s7xZGRkgEMxnKEktLolPzkgsiS/Kz89lYAAAGI4hOA==";
 }
 
 class MicCubit extends Cubit<bool> {
@@ -51,15 +47,15 @@ class RTCSDK {
 
     _rtcEngineEventHandler = RtcEngineEventHandler(
       onError: (ErrorCodeType err, String msg) {
-        ('[onError] err: $err, msg: $msg');
+        ('xc:[onError] err: $err, msg: $msg');
       },
       onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
         logger.d(
-            '[onJoinChannelSuccess] connection: ${connection.toJson()} elapsed: $elapsed');
+            '[xc:onJoinChannelSuccess] connection: ${connection.toJson()} elapsed: $elapsed');
       },
       onLeaveChannel: (RtcConnection connection, RtcStats stats) {
         logger.d(
-            '[onLeaveChannel] connection: ${connection.toJson()} stats: ${stats.toJson()}');
+            '[xc:onLeaveChannel] connection: ${connection.toJson()} stats: ${stats.toJson()}');
       },
     );
 
@@ -88,10 +84,12 @@ class RTCSDK {
       await Permission.microphone.request();
     }
     final String token = await getAgoraToken(channelName, getUid());
+    int uid = getUid();
+    logger.d('设置的uid=$uid');
     await _engine.joinChannel(
         token: token,
         channelId: channelName,
-        uid: getUid(),
+        uid: uid,
         options: ChannelMediaOptions(
           channelProfile: _channelProfileType,
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
