@@ -31,19 +31,16 @@ class _ChatRoomState extends State<ChatRoomPage> {
     super.initState();
 
     // IM初始化
-    // IMSDK.instance.onJoinChatRoom();
-    // IMSDK.instance.chatRecordCubit.addRecord(ChatRecord(
-    //     '为什么猪不能上天空呢？因为它们会变成猪飞机！😄',
-    //     '莉莉',
-    //     'assets/images/default_avatar.jpg',
-    //     false));
+    IMSDK.instance.onJoinChatRoom();
+    IMSDK.instance.recordCubit?.addRecord(ChatRecord('为什么猪不能上天空呢？因为它们会变成猪飞机！😄',
+        '莉莉', 'assets/images/default_avatar.jpg', false));
 
     RTCSDK.instance.joinChannel(channelName);
   }
 
   @override
   void dispose() {
-    // IMSDK.instance.onLeaveChatRoom();
+    IMSDK.instance.onLeaveChatRoom();
 
     RTCSDK.instance.leaveChannel();
     super.dispose();
@@ -60,7 +57,7 @@ class _ChatRoomState extends State<ChatRoomPage> {
         ),
       ),
       child: BlocProvider(
-        create: (context) => IMSDK.instance.chatRecordCubit,
+        create: (context) => IMSDK.instance.recordCubit!,
         child: Column(
           children: [
             Padding(
@@ -628,17 +625,17 @@ class BottomToolBar extends StatelessWidget {
                 width: 30,
                 height: 30,
               ),
-               SvgPicture.asset(
+              SvgPicture.asset(
                 'assets/svgs/handup.svg',
                 width: 22,
                 height: 22,
               ),
-               Image.asset(
+              Image.asset(
                 'assets/images/ic_gift.png',
                 width: 30,
                 height: 30,
               ),
-               Image.asset(
+              Image.asset(
                 'assets/images/ic_menu.png',
                 width: 30,
                 height: 30,

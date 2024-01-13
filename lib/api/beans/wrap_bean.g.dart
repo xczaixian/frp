@@ -74,7 +74,7 @@ Map<String, dynamic> _$RoomBeanWrapToJson(RoomBeanWrap instance) =>
 
 ListRoomBean _$ListRoomBeanFromJson(Map<String, dynamic> json) => ListRoomBean(
       (json['channels'] as List<dynamic>)
-          .map((e) => RoomBean.fromJson(e as Map<String, dynamic>))
+          .map((e) => ChannelListSimpleBean.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['total_size'] as int,
     );
@@ -83,6 +83,20 @@ Map<String, dynamic> _$ListRoomBeanToJson(ListRoomBean instance) =>
     <String, dynamic>{
       'channels': instance.channels,
       'total_size': instance.total_size,
+    };
+
+ChannelListSimpleBean _$ChannelListSimpleBeanFromJson(
+        Map<String, dynamic> json) =>
+    ChannelListSimpleBean(
+      json['channel_name'] as String,
+      json['user_count'] as int,
+    );
+
+Map<String, dynamic> _$ChannelListSimpleBeanToJson(
+        ChannelListSimpleBean instance) =>
+    <String, dynamic>{
+      'channel_name': instance.channel_name,
+      'user_count': instance.user_count,
     };
 
 AgoraTokenWarpBean _$AgoraTokenWarpBeanFromJson(Map<String, dynamic> json) =>

@@ -1,9 +1,5 @@
 import 'dart:async';
-
-import 'package:chat_room/page/room_list_page.dart';
 import 'package:flutter/material.dart';
-import '../common/sp_util.dart';
-
 import '../common/login_manager.dart';
 
 class SplashPage extends StatefulWidget {

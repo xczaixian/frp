@@ -12,12 +12,15 @@ import 'package:permission_handler/permission_handler.dart';
 import 'logger_util.dart';
 
 class Config {
-// 填写项目的 App ID，可在声网控制台中生成
+  // 填写项目的 App ID，可在声网控制台中生成
   // static const String appId = "41cb6429b9da4589a083282a1f339714";
   static const String appId = "e4e5265a2566410ab86b0290c72aef00";
-// 填写声网控制台中生成的临时 Token
-  // static const String token =
-  //     "007eJxTYKibp/j9bYz2t8PikssVd23cw2PHovkv61qGUIqy2yzd+1UKDCaGyUlmJkaWSZYpiSamFpaJBhbGRhZGiYZpxsaW5oYmid21qQ2BjAx8s7xZGRkgEMxnKEktLolPzkgsiS/Kz89lYAAAGI4hOA==";
+  //是否临时测试模式
+  static const bool isTmpTest = false;
+  // 填写声网控制台中生成的临时 Token
+  static const String tmpToken =
+      "007eJxTYLg++Xp93Naf+/7q+cnFTln06P1D+eanq8tVL+XPKi3wFdBRYEg1STU1MjNNNDI1MzMxNEhMsjBLMjCyNEg2N0pMTTMwEF61KLUhkJGh6LoGKyMDIwMLEIP4TGCSGUyyQMmS1OISBgYAQDIjNQ==";
+  static const String tmpChannelName = 'test';
 }
 
 class MicCubit extends Cubit<bool> {
@@ -57,6 +60,18 @@ class RTCSDK {
         logger.d(
             '[xc:onLeaveChannel] connection: ${connection.toJson()} stats: ${stats.toJson()}');
       },
+      onAudioDeviceStateChanged: (deviceId, deviceType, deviceState) =>
+          {logger.d('onAudioDeviceStateChanged()+$deviceState')},
+      onAudioDeviceVolumeChanged: (deviceType, volume, muted) =>
+          {logger.d("onAudioDeviceVolumeChanged()+$volume")},
+      onAudioSubscribeStateChanged:
+          (channel, uid, oldState, newState, elapseSinceLastState) =>
+              {logger.d("onAudioSubscribeStateChanged()+$newState")},
+      onLocalAudioStateChanged: (connection, state, error) =>
+          {logger.d("onLocalAudioStateChanged()+$state")},
+      onRemoteAudioStateChanged:
+          (connection, remoteUid, state, reason, elapsed) =>
+              {logger.d("onRemoteAudioStateChanged()+$state")},
     );
 
     _engine.registerEventHandler(_rtcEngineEventHandler);
@@ -83,7 +98,12 @@ class RTCSDK {
     if (defaultTargetPlatform == TargetPlatform.android) {
       await Permission.microphone.request();
     }
-    final String token = await getAgoraToken(channelName, getUid());
+    String token;
+    if (Config.isTmpTest) {
+      token = Config.tmpToken;
+    } else {
+      token = await getAgoraToken(channelName, getUid());
+    }
     int uid = getUid();
     logger.d('设置的uid=$uid');
     await _engine.joinChannel(
@@ -93,6 +113,9 @@ class RTCSDK {
         options: ChannelMediaOptions(
           channelProfile: _channelProfileType,
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
+          autoSubscribeAudio: true,
+          enableAudioRecordingOrPlayout: true,
+          publishMicrophoneTrack: true,
         ));
   }
 

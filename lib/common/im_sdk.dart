@@ -58,10 +58,17 @@ class IMSDK {
 
   static IMSDK get instance => _instance;
 
-  ChatRecordCubit chatRecordCubit =
-      ChatRecordCubit(List<ChatRecord>.empty(growable: true));
+  ChatRecordCubit? _chatRecordCubit;
 
-  ChatRecordCubit get cubit => chatRecordCubit;
+  void _onJoinChatRoomCubitLifecycle() {
+    _chatRecordCubit = ChatRecordCubit(List<ChatRecord>.empty(growable: true));
+  }
+
+  void _onLeaveChatRoomCubitLifecycle() {
+    _chatRecordCubit = null;
+  }
+
+  ChatRecordCubit? get recordCubit => _chatRecordCubit;
 
   String? chatRoomId;
 
@@ -129,7 +136,7 @@ class IMSDK {
           onSuccess: (msgId, msg) {
             logger.d("send message succeed");
             EMTextMessageBody body = msg.body as EMTextMessageBody;
-            chatRecordCubit.addRecord(ChatRecord(
+            _chatRecordCubit?.addRecord(ChatRecord(
                 body.content,
                 msg.from ?? 'unknown',
                 'assets/images/default_avatar.jpg',
@@ -159,7 +166,7 @@ class IMSDK {
                   logger.d(
                     "receive text message: ${body.content}, from: ${msg.from}",
                   );
-                  cubit.addRecord(ChatRecord(
+                  _chatRecordCubit?.addRecord(ChatRecord(
                       body.content,
                       msg.from ?? 'unknown',
                       'assets/images/default_avatar.jpg',
@@ -234,6 +241,7 @@ class IMSDK {
   }
 
   onJoinChatRoom() async {
+    _onJoinChatRoomCubitLifecycle();
     _addListener();
     _joinIMChatRoom();
   }
@@ -278,8 +286,8 @@ class IMSDK {
         logger.e(e);
       }
     }
-
-    cubit.clearRecord();
+    _chatRecordCubit?.clearRecord();
+    _onLeaveChatRoomCubitLifecycle();
     _removeListener();
   }
 

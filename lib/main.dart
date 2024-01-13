@@ -6,9 +6,6 @@ import 'package:flutter/material.dart';
 import 'common/sp_util.dart';
 
 void main() {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // IMSDK.instance.onAppInit();
-  // SPUtil.instance.initSP();
   runApp(const MyApp());
 }
 
@@ -20,6 +17,7 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
+  /// SDK初始化方法
   initApp() {
     SPUtil.instance.initSP();
     IMSDK.instance.onAppInit();

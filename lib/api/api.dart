@@ -136,7 +136,7 @@ Future<RoomBean?> createRoom(RoomBean roomBean) async {
 }
 
 // 查询通道列表
-Future<List<RoomBean>> queryChannelList() async {
+Future<List<ChannelListSimpleBean>> queryChannelList() async {
   final result = await post('agora/query/channel', {}, needToken: true);
   String msg = getErrorMsg(result);
   if (msg.isNotEmpty) {

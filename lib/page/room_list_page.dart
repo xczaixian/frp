@@ -1,14 +1,15 @@
 import 'dart:io';
 
 import 'package:chat_room/api/beans/room_bean.dart';
+import 'package:chat_room/common/rtc_sdk.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../api/api.dart';
+import '../api/beans/wrap_bean.dart';
 import '../common/logger_util.dart';
-import '../common/rtc_sdk.dart';
 import '../components/android_foreground_service_widget.dart';
 import 'chat_room_page.dart';
 import '../api/Api.dart' as api;
@@ -20,25 +21,25 @@ class RoomListPage extends StatefulWidget {
   State<StatefulWidget> createState() => RoomListPageState();
 }
 
-class RoomListCubit extends Cubit<List<RoomBean>> {
+class RoomListCubit extends Cubit<List<ChannelListSimpleBean>> {
   RoomListCubit(super.initialState);
 
-  void changeList(List<RoomBean> list) {
-    List<RoomBean> result = List.empty(growable: true);
+  void changeList(List<ChannelListSimpleBean> list) {
+    List<ChannelListSimpleBean> result = List.empty(growable: true);
     result.addAll(list);
     emit(result);
   }
 
-  void addRoom(RoomBean chatRecord) {
+  void addRoom(ChannelListSimpleBean chatRecord) {
     // 将新数据添加到当前列表中
-    List<RoomBean> currentList = state;
+    List<ChannelListSimpleBean> currentList = state;
     currentList.add(chatRecord);
-    emit(List<RoomBean>.from(currentList));
+    emit(List<ChannelListSimpleBean>.from(currentList));
   }
 
   void clearRecord() {
     state.clear();
-    emit(List<RoomBean>.from(state));
+    emit(List<ChannelListSimpleBean>.from(state));
   }
 }
 
@@ -49,23 +50,22 @@ class RoomListPageState extends State<RoomListPage> {
   @override
   void initState() {
     super.initState();
-    updateRoomList(false);
+    if (Config.isTmpTest) {
+      _roomListCubit.addRoom(ChannelListSimpleBean(Config.tmpChannelName, 1));
+    } else {
+      updateRoomList();
+    }
   }
 
-  void updateRoomList(bool addAlways) {
+  void updateRoomList() {
     api.queryChannelList().then((value) {
-      if (value.isNotEmpty) {
-        _roomListCubit.changeList(value);
-      } else if (addAlways) {
-        _roomListCubit.addRoom(RoomBean(default_channel_name, default_image,
-            default_roompwd, default_country, default_roomType));
-      }
+      _roomListCubit.changeList(value);
     });
   }
 
-  void _toRoom(BuildContext context, RoomBean roomBean) {
+  void _toRoom(BuildContext context, ChannelListSimpleBean roomBean) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      Widget widget = ChatRoomPage(roomBean.channelName);
+      Widget widget = ChatRoomPage(roomBean.channel_name);
       if (!kIsWeb && Platform.isAndroid) {
         widget = AndroidForegroundServiceWidget(child: widget);
       }
@@ -145,7 +145,7 @@ class RoomListPageState extends State<RoomListPage> {
         logger.d('创建房间失败');
       } else {
         Fluttertoast.showToast(msg: '创建房间成功');
-        _toRoom(context, roomBean);
+        _toRoom(context, ChannelListSimpleBean(channelName, 1));
       }
     });
   }
@@ -172,7 +172,7 @@ class RoomListPageState extends State<RoomListPage> {
                           MaterialStateProperty.all<Color>(Colors.white)),
                   child: const Text('创建房间')),
               Expanded(
-                child: BlocBuilder<RoomListCubit, List<RoomBean>>(
+                child: BlocBuilder<RoomListCubit, List<ChannelListSimpleBean>>(
                   builder: (context, state) {
                     return state.isEmpty
                         ? Container(
@@ -198,7 +198,7 @@ class RoomListPageState extends State<RoomListPage> {
                                   decoration:
                                       const BoxDecoration(color: Colors.white),
                                   child: Text(
-                                    state[index].channelName,
+                                    state[index].channel_name,
                                     style: const TextStyle(
                                         fontSize: 24, color: Colors.green),
                                   ),

@@ -33,6 +33,7 @@ void setUsername(String username) {
   SPUtil.instance.setString(SPKey.loginUserName, username);
 }
 
+/// 检查登录，如果登陆过，那么刷新token，否则进入登录页
 Future<void> checkLogin(BuildContext context) async {
   String? userName = SPUtil.instance.getString(SPKey.loginUserName);
   String? token = SPUtil.instance.getString(SPKey.token);

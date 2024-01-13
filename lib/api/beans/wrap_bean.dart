@@ -73,13 +73,26 @@ class RoomBeanWrap {
 class ListRoomBean {
   ListRoomBean(this.channels, this.total_size);
 
-  List<RoomBean> channels;
+  List<ChannelListSimpleBean> channels;
   int total_size;
 
   factory ListRoomBean.fromJson(Map<String, dynamic> json) =>
       _$ListRoomBeanFromJson(json);
 
   Map<String, dynamic> toJson() => _$ListRoomBeanToJson(this);
+}
+
+@JsonSerializable()
+class ChannelListSimpleBean {
+  String channel_name;
+  int user_count;
+
+  ChannelListSimpleBean(this.channel_name, this.user_count);
+
+  factory ChannelListSimpleBean.fromJson(Map<String, dynamic> json) =>
+      _$ChannelListSimpleBeanFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ChannelListSimpleBeanToJson(this);
 }
 
 @JsonSerializable()
