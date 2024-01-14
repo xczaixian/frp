@@ -23,12 +23,6 @@ class Config {
   static const String tmpChannelName = 'test';
 }
 
-class MicCubit extends Cubit<bool> {
-  MicCubit(super.initialState);
-
-  void switchState() => emit(!state);
-}
-
 class RTCSDK {
   RTCSDK._();
 
@@ -88,10 +82,11 @@ class RTCSDK {
     _engine.release();
   }
 
-  switchAudioUpload(bool enable) {
-    //这里false是发布（默认），true是取消发布
-    _engine.muteLocalAudioStream(!enable);
-    logger.d('改变音频上传状态:$enable');
+  //切换静音状态,true:的话静音，false，取消静音
+  switchSoundOffState(bool state) {
+    _engine.muteLocalAudioStream(state);
+    _engine.muteAllRemoteAudioStreams(state);
+    logger.d('改变静音状态:$state');
   }
 
   joinChannel(String channelName) async {

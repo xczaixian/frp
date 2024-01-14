@@ -1,5 +1,9 @@
+import 'package:chat_room/api/api.dart';
+import 'package:chat_room/api/beans/user_info.dart';
 import 'package:chat_room/common/im_sdk.dart';
 import 'package:chat_room/common/rtc_sdk.dart';
+import 'package:chat_room/common/room_state_manager.dart';
+import 'package:chat_room/page/room_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,9 +13,9 @@ import 'dart:async';
 import '../common/logger_util.dart';
 
 class ChatRoomPage extends StatefulWidget {
-  String _channelName;
+  final String _channelName;
 
-  ChatRoomPage(this._channelName, {super.key});
+  const ChatRoomPage(this._channelName, {super.key});
 
   @override
   State<StatefulWidget> createState() =>
@@ -23,26 +27,23 @@ class _ChatRoomState extends State<ChatRoomPage> {
 
   _ChatRoomState({required this.channelName});
 
-  // 默认状态打开
-  MicCubit micCubit = MicCubit(true);
-
   @override
   void initState() {
     super.initState();
-
+    initRoomState();
     // IM初始化
     IMSDK.instance.onJoinChatRoom();
-    IMSDK.instance.recordCubit?.addRecord(ChatRecord('为什么猪不能上天空呢？因为它们会变成猪飞机！😄',
-        '莉莉', 'assets/images/default_avatar.jpg', false));
-
+    // IMSDK.instance.recordCubit?.addRecord(ChatRecord('为什么猪不能上天空呢？因为它们会变成猪飞机！😄',
+    //     '莉莉', 'assets/images/default_avatar.jpg', false));
     RTCSDK.instance.joinChannel(channelName);
+    qureyRoomUserList().then((value) => getRoomUserCubit.setList(value));
   }
 
   @override
   void dispose() {
     IMSDK.instance.onLeaveChatRoom();
-
     RTCSDK.instance.leaveChannel();
+    releaseRoomState();
     super.dispose();
   }
 
@@ -56,8 +57,19 @@ class _ChatRoomState extends State<ChatRoomPage> {
           fit: BoxFit.cover,
         ),
       ),
-      child: BlocProvider(
-        create: (context) => IMSDK.instance.recordCubit!,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<ChatRecordCubit>(
+            create: (BuildContext context) => getChatRecordCubit,
+          ),
+          BlocProvider<MicUserCubit>(
+            create: (BuildContext context) => getMicUserCubit,
+          ),
+          BlocProvider<SoundOffCubit>(
+              create: (BuildContext context) => getSoundOffCubit),
+          BlocProvider<RoomUserCubit>(
+              create: (BuildContext context) => getRoomUserCubit),
+        ],
         child: Column(
           children: [
             Padding(
@@ -67,13 +79,10 @@ class _ChatRoomState extends State<ChatRoomPage> {
             const SizedBox(
               height: 10,
             ),
-            RankBar(),
+            UserListBar(),
             MicGrid(),
             const Expanded(child: ChatWindow()),
-            BlocProvider(
-              create: (context) => micCubit,
-              child: BottomToolBar(),
-            ),
+            BottomToolBar(),
           ],
         ),
       ),
@@ -365,70 +374,73 @@ class FlagPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class RankBar extends StatelessWidget {
+// 用户列表，横向列表
+class UserListBar extends StatelessWidget {
+  const UserListBar({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 50,
       child: Row(
         children: [
-          Container(
-            width: 150,
-            height: 46,
-            child: Stack(
-              children: [
-                Container(
-                  width: 150,
-                  height: 46,
-                  child: CustomPaint(
-                    painter: FlagPainter(),
+          Padding(
+            padding: const EdgeInsets.only(right: 30),
+            child: Container(
+              width: 100,
+              height: 40,
+              child: Stack(
+                children: [
+                  Container(
+                    width: 100,
+                    height: 40,
+                    child: CustomPaint(
+                      painter: FlagPainter(),
+                    ),
                   ),
-                ),
-                Center(
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'assets/images/cup.png',
-                        width: 40,
-                        height: 40,
-                      ),
-                      const Text(
-                        '50.3K >',
-                        style: TextStyle(color: Colors.yellow, fontSize: 16),
-                      ),
-                    ],
+                  Center(
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'assets/images/cup.png',
+                          width: 30,
+                          height: 30,
+                        ),
+                        const Text(
+                          '50.3K >',
+                          style: TextStyle(color: Colors.yellow, fontSize: 12),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Expanded(
-            child: Container(),
-          ),
-          Container(
-            height: 60,
-            width: 160,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return Center(
-                  child: ClipOval(
-                    child: Container(
-                      margin: EdgeInsets.only(right: 8),
-                      width: 30,
-                      height: 30,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/default_avatar.jpg'),
-                          fit: BoxFit.cover,
+            child: BlocBuilder<RoomUserCubit, List<UserInfo>>(
+              builder: (context, state) => ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: state.length,
+                itemBuilder: (context, index) {
+                  return Center(
+                    child: ClipOval(
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 10),
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: AssetImage(state[index].headerImage),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
           Stack(
@@ -452,10 +464,12 @@ class RankBar extends StatelessWidget {
                       width: 12,
                       height: 12,
                     ),
-                    const Text(
-                      '982',
-                      style: TextStyle(color: Colors.white, fontSize: 10),
-                    )
+                    BlocBuilder<RoomUserCubit, List<UserInfo>>(
+                        builder: (context, state) => Text(
+                              state.length.toString(),
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 10),
+                            ))
                   ],
                 ),
               )
@@ -563,13 +577,15 @@ class MicGrid extends StatelessWidget {
 }
 
 class BottomToolBar extends StatelessWidget {
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+
+  BottomToolBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<MicCubit, bool>(
+    return BlocConsumer<SoundOffCubit, bool>(
       listener: (context, state) {
-        RTCSDK.instance.switchAudioUpload(state);
+        RTCSDK.instance.switchSoundOffState(state);
       },
       builder: (context, state) {
         return Container(
@@ -581,11 +597,11 @@ class BottomToolBar extends StatelessWidget {
             children: [
               GestureDetector(
                 child: SvgPicture.asset(
-                  state ? 'assets/svgs/voice.svg' : 'assets/svgs/silence.svg',
+                  state ? 'assets/svgs/silence.svg' : 'assets/svgs/voice.svg',
                   width: 22,
                   height: 22,
                 ),
-                onTap: () => context.read<MicCubit>().switchState(),
+                onTap: () => context.read<SoundOffCubit>().switchState(),
               ),
               SizedBox(
                 width: 160,
@@ -668,8 +684,8 @@ class TopBar extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/images/default_avatar.jpg',
-                  width: 56,
-                  height: 56,
+                  width: 36,
+                  height: 36,
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 10, right: 40),
@@ -678,14 +694,14 @@ class TopBar extends StatelessWidget {
                     children: const [
                       Text(
                         'Superyaya',
-                        style: TextStyle(color: Colors.white, fontSize: 20),
+                        style: TextStyle(color: Colors.white, fontSize: 15),
                       ),
                       SizedBox(
-                        height: 10,
+                        height: 7,
                       ),
                       Text(
                         'ID:2023089',
-                        style: TextStyle(color: Colors.white, fontSize: 15),
+                        style: TextStyle(color: Colors.white, fontSize: 12),
                       )
                     ],
                   ),
@@ -694,8 +710,8 @@ class TopBar extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 30,
+                      height: 30,
                       decoration: const BoxDecoration(
                         color: Color(0xfff95c9b),
                         shape: BoxShape.circle,
@@ -704,8 +720,8 @@ class TopBar extends StatelessWidget {
                     ),
                     SvgPicture.asset(
                       'assets/svgs/heart.svg',
-                      width: 22,
-                      height: 22,
+                      width: 16,
+                      height: 16,
                     )
                   ],
                 )

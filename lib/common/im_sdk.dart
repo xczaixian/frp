@@ -1,3 +1,4 @@
+import 'package:chat_room/common/room_state_manager.dart';
 import 'package:chat_room/common/sp_util.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,48 +28,12 @@ class ChatRecord {
   bool isOwn;
 }
 
-class ChatRecordCubit extends Cubit<List<ChatRecord>> {
-  ChatRecordCubit(super.initialState);
-
-  void changeRecrod(List<ChatRecord> list) {
-    if (state.isNotEmpty) {
-      state.clear();
-    }
-    state.addAll(list);
-    emit(state);
-  }
-
-  void addRecord(ChatRecord chatRecord) {
-    // 将新数据添加到当前列表中
-    List<ChatRecord> currentList = state;
-    currentList.add(chatRecord);
-    emit(List<ChatRecord>.from(currentList));
-  }
-
-  void clearRecord() {
-    state.clear();
-    emit(List<ChatRecord>.from(state));
-  }
-}
-
 class IMSDK {
   IMSDK._();
 
   static final IMSDK _instance = IMSDK._();
 
   static IMSDK get instance => _instance;
-
-  ChatRecordCubit? _chatRecordCubit;
-
-  void _onJoinChatRoomCubitLifecycle() {
-    _chatRecordCubit = ChatRecordCubit(List<ChatRecord>.empty(growable: true));
-  }
-
-  void _onLeaveChatRoomCubitLifecycle() {
-    _chatRecordCubit = null;
-  }
-
-  ChatRecordCubit? get recordCubit => _chatRecordCubit;
 
   String? chatRoomId;
 
@@ -136,7 +101,7 @@ class IMSDK {
           onSuccess: (msgId, msg) {
             logger.d("send message succeed");
             EMTextMessageBody body = msg.body as EMTextMessageBody;
-            _chatRecordCubit?.addRecord(ChatRecord(
+            getChatRecordCubit.addRecord(ChatRecord(
                 body.content,
                 msg.from ?? 'unknown',
                 'assets/images/default_avatar.jpg',
@@ -166,7 +131,7 @@ class IMSDK {
                   logger.d(
                     "receive text message: ${body.content}, from: ${msg.from}",
                   );
-                  _chatRecordCubit?.addRecord(ChatRecord(
+                  getChatRecordCubit.addRecord(ChatRecord(
                       body.content,
                       msg.from ?? 'unknown',
                       'assets/images/default_avatar.jpg',
@@ -220,6 +185,9 @@ class IMSDK {
                   // 当前回调中不会有 CMD 类型消息，CMD 类型消息通过 `EMChatEventHandler#onCmdMessagesReceived` 回调接收
                 }
                 break;
+              case MessageType.COMBINE:
+                // TODO: Handle this case.
+                break;
             }
           }
         },
@@ -241,7 +209,6 @@ class IMSDK {
   }
 
   onJoinChatRoom() async {
-    _onJoinChatRoomCubitLifecycle();
     _addListener();
     _joinIMChatRoom();
   }
@@ -286,8 +253,7 @@ class IMSDK {
         logger.e(e);
       }
     }
-    _chatRecordCubit?.clearRecord();
-    _onLeaveChatRoomCubitLifecycle();
+    getChatRecordCubit.clearRecord();
     _removeListener();
   }
 

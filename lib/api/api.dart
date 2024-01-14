@@ -1,13 +1,12 @@
-import 'dart:ffi';
-
 import 'package:chat_room/api/beans/room_bean.dart';
 import 'package:chat_room/api/beans/wrap_bean.dart';
 import 'package:chat_room/common/logger_util.dart';
 import 'package:chat_room/common/login_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:logger/logger.dart';
 
 import '../common/http_util.dart';
+import '../config/test_users.dart';
+import 'beans/user_info.dart';
 
 // 错误的时候，返回的是通用的数据结构
 String getErrorMsg(Map<String, dynamic> json) {
@@ -145,4 +144,9 @@ Future<List<ChannelListSimpleBean>> queryChannelList() async {
   }
   RoomBeanWrap roomBeanWrap = RoomBeanWrap.fromJson(result);
   return roomBeanWrap.data.channels;
+}
+
+// 测试方法，获取房间用户列表
+Future<List<UserInfo>> qureyRoomUserList() async {
+  return getTestUsers;
 }
