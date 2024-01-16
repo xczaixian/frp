@@ -10,6 +10,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'dart:async';
 
+import '../api/beans/contribute_user.dart';
+import '../common/custom_widget.dart';
 import '../common/logger_util.dart';
 
 class ChatRoomPage extends StatefulWidget {
@@ -374,9 +376,236 @@ class FlagPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
+class CrossPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 2.0;
+
+    canvas.drawLine(
+      const Offset(0, 0),
+      Offset(size.width, size.height),
+      paint,
+    );
+
+    canvas.drawLine(
+      Offset(size.width, 0),
+      Offset(0, size.height),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(CrossPainter oldDelegate) => false;
+}
+
+class RoomUserListDialog extends StatelessWidget {
+  const RoomUserListDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<RoomUserCubit>(
+      create: (context) => getRoomUserCubit,
+      child:
+          BlocBuilder<RoomUserCubit, List<UserInfo>>(builder: (context, state) {
+        return Container(
+            height: MediaQuery.of(context).size.height * 0.8,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16.0),
+                topRight: Radius.circular(16.0),
+              ),
+            ),
+            child: Column(children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SizedBox(
+                  height: 16,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: GestureDetector(
+                          onTap: () => {Navigator.pop(context)},
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CustomPaint(
+                              painter: CrossPainter(),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Online Users: ${state.length}',
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.black),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              const Divider(
+                color: Colors.grey,
+                thickness: 1,
+              ),
+              Expanded(
+                  child: ListView.builder(
+                      itemCount: state.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              CircleHeader(state[index].headerImage, 30),
+                              Column(
+                                children: [
+                                  Text(state[index].id.toString()),
+                                  Text(state[index].userName),
+                                ],
+                              )
+                            ],
+                          ),
+                        );
+                      }))
+            ]));
+      }),
+    );
+  }
+}
+
+class RankUserListDialog extends StatelessWidget {
+  const RankUserListDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.8,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16.0),
+          topRight: Radius.circular(16.0),
+        ),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              height: 16,
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: () => {Navigator.pop(context)},
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CustomPaint(
+                          painter: CrossPainter(),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Contribution',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+          const Divider(
+            color: Colors.grey,
+            thickness: 1,
+          ),
+          Expanded(
+            child: DefaultTabController(
+                length: 2, // Tab 的数量
+                child: Column(
+                  children: [
+                    const TabBar(
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Colors.grey,
+                      tabs: [
+                        Tab(text: 'Last 24 Hours'),
+                        Tab(text: 'Last 7 Days'),
+                      ],
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          RankUserList(false),
+                          RankUserList(true),
+                        ],
+                      ),
+                    )
+                  ],
+                )),
+          ),
+          const Divider(
+            color: Colors.grey,
+            thickness: 1,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                const CircleHeader('assets/images/headers/head_test0.webp', 40),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('userName'),
+                      Text('0'),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
 // 用户列表，横向列表
 class UserListBar extends StatelessWidget {
   const UserListBar({super.key});
+
+  _showModalBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return const RankUserListDialog();
+      },
+    );
+  }
+
+  _showRoomUserListSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return const RoomUserListDialog();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -399,18 +628,22 @@ class UserListBar extends StatelessWidget {
                     ),
                   ),
                   Center(
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          'assets/images/cup.png',
-                          width: 30,
-                          height: 30,
-                        ),
-                        const Text(
-                          '50.3K >',
-                          style: TextStyle(color: Colors.yellow, fontSize: 12),
-                        ),
-                      ],
+                    child: GestureDetector(
+                      onTap: () => _showModalBottomSheet(context),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/cup.png',
+                            width: 30,
+                            height: 30,
+                          ),
+                          const Text(
+                            '50.3K >',
+                            style:
+                                TextStyle(color: Colors.yellow, fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -443,37 +676,40 @@ class UserListBar extends StatelessWidget {
               ),
             ),
           ),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Color(0x1affffff),
-                  shape: BoxShape.circle,
+          GestureDetector(
+            onTap: () => _showRoomUserListSheet(context),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0x1affffff),
+                    shape: BoxShape.circle,
+                  ),
+                  child: null,
                 ),
-                child: null,
-              ),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/svgs/people.svg',
-                      width: 12,
-                      height: 12,
-                    ),
-                    BlocBuilder<RoomUserCubit, List<UserInfo>>(
-                        builder: (context, state) => Text(
-                              state.length.toString(),
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 10),
-                            ))
-                  ],
-                ),
-              )
-            ],
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/svgs/people.svg',
+                        width: 12,
+                        height: 12,
+                      ),
+                      BlocBuilder<RoomUserCubit, List<UserInfo>>(
+                          builder: (context, state) => Text(
+                                state.length.toString(),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 10),
+                              ))
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ],
       ),
