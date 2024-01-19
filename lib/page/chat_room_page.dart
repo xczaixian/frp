@@ -11,8 +11,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:async';
 
 import '../api/beans/contribute_user.dart';
-import '../common/custom_widget.dart';
+import '../widget/custom_widget.dart';
 import '../common/logger_util.dart';
+import '../widget/gift_dialog.dart';
 
 class ChatRoomPage extends StatefulWidget {
   final String _channelName;
@@ -655,10 +656,13 @@ class BottomToolBar extends StatelessWidget {
                 width: 22,
                 height: 22,
               ),
-              Image.asset(
-                'assets/images/ic_gift.png',
-                width: 30,
-                height: 30,
+              GestureDetector(
+                onTap: () => showGiftDialog(context),
+                child: Image.asset(
+                  'assets/images/ic_gift.png',
+                  width: 30,
+                  height: 30,
+                ),
               ),
               Image.asset(
                 'assets/images/ic_menu.png',

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../api/beans/contribute_user.dart';
-import 'room_state_manager.dart';
+import '../common/room_state_manager.dart';
 
 class CircleHeader extends StatelessWidget {
   /// 可能是网络头像或者是本地图片
